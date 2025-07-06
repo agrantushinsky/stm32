@@ -1,0 +1,6 @@
+CompileFlags:
+  Add: [
+    "-Ilibopencm3/include",
+    "-Ilibopencm3/lib",
+    "-DSTM32F4"
+  ]
