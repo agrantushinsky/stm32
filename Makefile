@@ -13,17 +13,19 @@ LDSCRIPT=stm32f446re.ld
 LIBOPENCM3=libopencm3
 BUILD=build
 
-CFLAGS=-Os -g -Wall -Wextra -std=c11 -ffreestanding --specs=nano.specs \
-       -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16 \
+FPFLAGS=-mfloat-abi=softfp -mfpu=fpv4-sp-d16
+
+SFLAGS=--specs=nano.specs -mcpu=cortex-m4 -mthumb $(FPFLAGS)
+
+CFLAGS=-Os -g -Wall -Wextra -std=c11 -ffreestanding  \
+       $(SFLAGS) \
        -I$(LIBOPENCM3)/include \
        -I$(LIBOPENCM3)/lib \
        -D$(TARGETUP)
-#-mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-LDFLAGS=-T$(LDSCRIPT) -nostartfiles \
+LDFLAGS=-T$(LDSCRIPT) $(SFLAGS) -nostartfiles \
         -L$(LIBOPENCM3)/lib \
-        -lopencm3_$(TARGET) #\
-		#//-u _printf_float
+        -lopencm3_$(TARGET)
 
 SRC=blink.c syscalls.c
 OBJ=$(SRC:.c=.o)
@@ -49,7 +51,7 @@ gdb: $(PROJECT).elf
 		-ex "load"
 
 libs:
-	make -C $(LIBOPENCM3) TARGETS="stm32/f4" FP_FLAGS="-mfloat-abi=softfp -mfpu=fpv4-sp-d16"
+	make -C $(LIBOPENCM3) TARGETS="stm32/f4" FP_FLAGS="$(FPFLAGS)"
 
 clean:
 	rm -f *.elf *.bin *.o

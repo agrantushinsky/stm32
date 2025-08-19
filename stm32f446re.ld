@@ -22,9 +22,11 @@ SECTIONS {
         KEEP(*(.fini))
 
         *(.eh_frame)
+
         __exidx_start = .;
         *(.ARM.exidx*)
         __exidx_end = .;
+
         *(.ARM.extab*)
 
         _etext = ALIGN(4);
