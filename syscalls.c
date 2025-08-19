@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <sys/types.h>
-#include <errno.h>
 #include <libopencm3/stm32/usart.h>
 
 extern uint8_t __bss_end__;
@@ -40,3 +39,14 @@ int _isatty(int fd) {
     return -1;
 }
 
+void _exit(int status) {
+
+}
+
+int _kill(int pid, int sig) {
+    return -1;
+}
+
+int _getpid(void) {
+    return -1;
+}

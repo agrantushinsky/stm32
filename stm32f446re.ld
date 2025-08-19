@@ -23,7 +23,7 @@ SECTIONS {
 
         *(.eh_frame)
         __exidx_start = .;
-        *(.ARM.exidx)
+        *(.ARM.exidx*)
         __exidx_end = .;
         *(.ARM.extab*)
 

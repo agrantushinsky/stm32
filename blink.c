@@ -117,7 +117,8 @@ void entry_point(void) {
 
     while (1) {
         gpio_toggle(GPIOA, GPIO5);
-        printf("Hello!\r\n");
+        puts("Test\r\n");
+        //printf("[%.2f] Hello!\r\n", (float)ticks / 1000.0f);
         sleep(1000);
     }
 }
