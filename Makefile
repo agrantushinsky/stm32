@@ -13,7 +13,7 @@ LDSCRIPT=stm32f446re.ld
 LIBOPENCM3=libopencm3
 BUILD=build
 
-CFLAGS=-Os -g -Wall -Wextra -std=c11 -ffreestanding -nostdlib \
+CFLAGS=-Os -g -Wall -Wextra -std=c11 -ffreestanding --specs=nano.specs \
        -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
        -I$(LIBOPENCM3)/include \
        -I$(LIBOPENCM3)/lib \
@@ -23,7 +23,7 @@ LDFLAGS=-T$(LDSCRIPT) -nostartfiles \
         -L$(LIBOPENCM3)/lib \
         -lopencm3_$(TARGET)
 
-SRC=blink.c
+SRC=blink.c syscalls.c
 OBJ=$(SRC:.c=.o)
 
 all: $(PROJECT).bin

@@ -2,11 +2,9 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/cortex.h>
+#include <libopencm3/stm32/usart.h>
 #include <stdint.h>
-
-// https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html
-// TODO: Add newlib-nano
-// TODO: Increase clock
+#include <stdio.h>
 
 extern uint8_t _sstack, _stext, _etext, _sdata, _edata, _sbss, _ebss;
 #define VTABLE_SIZE 113
@@ -63,8 +61,10 @@ uint32_t time(void) {
     return ticks;
 }
 
-void entry_point(void);
+void _init(void) { }
 
+void __libc_init_array();
+void entry_point(void);
 void reset_handler(void) {
     // copy .data to sram1
     uintptr_t data_size = (uintptr_t)&_edata - (uintptr_t)&_sdata;
@@ -81,6 +81,7 @@ void reset_handler(void) {
         bss[i] = 0;
     }
 
+    __libc_init_array();
     entry_point();
 }
 
@@ -96,10 +97,32 @@ void entry_point(void) {
     systick_counter_enable();
     systick_interrupt_enable();
 
+    // Configure USART
+    rcc_periph_clock_enable(RCC_USART2);
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2);
+    gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
+    
+    usart_set_baudrate(USART2, 115200);
+    usart_set_databits(USART2, 8);
+    usart_set_parity(USART2, USART_PARITY_NONE);
+    usart_set_stopbits(USART2, USART_CR2_STOPBITS_1);
+    usart_set_mode(USART2, USART_MODE_TX);
+    usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+    usart_enable(USART2);
+
+    // Enable interrupts
     cm_enable_interrupts();
+
+    setbuf(stdout, NULL);
 
     while (1) {
         gpio_toggle(GPIOA, GPIO5);
+
+        const char* msg = "Hi\r\n";
+        for(int i = 0; i < 4; i++) {
+            usart_send_blocking(USART2, msg[i]);
+        }
+
         sleep(1000);
     }
 }

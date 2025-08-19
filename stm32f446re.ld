@@ -16,8 +16,10 @@ SECTIONS {
     .text : {
         _stext = ALIGN(4);
 
-        *(.text)
-        *(.rodata)
+        *(.text*)
+        *(.rodata*)
+        KEEP(*(.init))
+        KEEP(*(.fini))
 
         _etext = ALIGN(4);
     } > FLASH
@@ -25,18 +27,19 @@ SECTIONS {
     .data : {
         _sdata = ALIGN(4);
 
-        *(.data)
+        *(.data*)
 
         _edata = ALIGN(4);
     } > SRAM1 AT > FLASH
 
     .bss : { 
         _sbss = ALIGN(4);
+        __bss_start__ = _sbss;
 
-        *(.bss)
+        *(.bss*)
 
         _ebss = ALIGN(4);
-        *(.bss)
+        __bss_end__ = _ebss;
     } > SRAM1
 }
 
