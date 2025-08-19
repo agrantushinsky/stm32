@@ -117,12 +117,7 @@ void entry_point(void) {
 
     while (1) {
         gpio_toggle(GPIOA, GPIO5);
-
-        const char* msg = "Hi\r\n";
-        for(int i = 0; i < 4; i++) {
-            usart_send_blocking(USART2, msg[i]);
-        }
-
+        printf("Hello!\r\n");
         sleep(1000);
     }
 }

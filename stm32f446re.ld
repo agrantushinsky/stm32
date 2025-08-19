@@ -21,6 +21,12 @@ SECTIONS {
         KEEP(*(.init))
         KEEP(*(.fini))
 
+        *(.eh_frame)
+        __exidx_start = .;
+        *(.ARM.exidx)
+        __exidx_end = .;
+        *(.ARM.extab*)
+
         _etext = ALIGN(4);
     } > FLASH
 
@@ -37,6 +43,7 @@ SECTIONS {
         __bss_start__ = _sbss;
 
         *(.bss*)
+        *(COMMON)
 
         _ebss = ALIGN(4);
         __bss_end__ = _ebss;

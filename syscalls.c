@@ -13,7 +13,7 @@ caddr_t _sbrk(int incr) {
     return (caddr_t)prev_heap;
 }
 
-int _write(int fd, char* buf, int len) {
+int _write(int fd, const char* buf, int len) {
     for (int i = 0; i < len; i++) {
         usart_send_blocking(USART2, buf[i]);
     }
