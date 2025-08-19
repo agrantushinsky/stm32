@@ -36,7 +36,12 @@ $(PROJECT).elf: $(SRC)
 
 flash: $(PROJECT).bin
 	st-flash write $(PROJECT).bin 0x8000000
-	st-flash verify $(PROJECT).bin 0x8000000
+
+gdb:
+	$(GDB) $(PROJECT).elf \
+		-ex "target extended-remote localhost:3333" \
+		-ex "monitor reset halt" \
+		-ex "load"
 
 clean:
 	rm -f *.elf *.bin *.o

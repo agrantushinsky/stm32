@@ -1,5 +1,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/systick.h>
+#include <libopencm3/cm3/cortex.h>
 #include <stdint.h>
 
 // https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html
@@ -20,7 +22,11 @@ void usage_fault_handler(void) __attribute__((weak, alias("default_handler")));
 void svc_handler(void) __attribute__((weak, alias("default_handler")));
 void debug_monitor_handler(void) __attribute__((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
-void systick_handler(void) __attribute__((weak, alias("default_handler")));
+
+volatile uint32_t ticks;
+void systick_handler(void) {
+    ticks++;
+}
 
 __attribute__((section(".isr_vector")))
 uintptr_t isr_vector[VTABLE_SIZE] = {
@@ -44,6 +50,19 @@ uintptr_t isr_vector[VTABLE_SIZE] = {
     // External interupts...
 };
 
+void sleep(uint32_t time) {
+    uint32_t start = ticks;
+    uint32_t wake = start + time;
+    if(wake < start) {
+        while(ticks > start);
+    }
+    while(ticks < wake);
+}
+
+uint32_t time(void) {
+    return ticks;
+}
+
 void entry_point(void);
 
 void reset_handler(void) {
@@ -66,12 +85,22 @@ void reset_handler(void) {
 }
 
 void entry_point(void) {
+    // Configure LED
     rcc_periph_clock_enable(RCC_GPIOA);
     gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 
+    // Configure clock
+    rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_180MHZ]);
+    systick_set_reload(180000);
+    systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+    systick_counter_enable();
+    systick_interrupt_enable();
+
+    cm_enable_interrupts();
+
     while (1) {
         gpio_toggle(GPIOA, GPIO5);
-        for(volatile uint32_t i = 0; i < 10000000; i++);
+        sleep(1000);
     }
 }
 
